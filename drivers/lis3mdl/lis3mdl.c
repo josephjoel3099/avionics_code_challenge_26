@@ -60,17 +60,16 @@ status_t get_full_scale_config(lis3mdl_t *device, uint8_t *gauss)
  * Get output data rate in Hz
  *
  * Reads the ODR (output data rate) configuration from CTRL_REG1 and returns
- * the configured sampling rate as an enumerated index.
+ * the configured sampling rate in Hz.
  *
  * @param device  Pointer to the lis3mdl device structure.
- * @param hz      Pointer to uint8_t where the ODR index will be stored.
- *                The index corresponds to: 0=0.625Hz, 1=1.25Hz, 2=2.5Hz, 3=5Hz,
- *                4=10Hz, 5=20Hz, 6=40Hz, 7=80Hz.
+ * @param hz      Pointer to double where the ODR rate in Hz will be stored.
+ *                Possible values: 0.625, 1.25, 2.5, 5.0, 10.0, 20.0, 40.0, or 80.0 Hz.
  *
  * @return STATUS_OK on success, STATUS_ERROR if I2C read fails or invalid
  *         ODR bits are encountered.
  */
-status_t get_odr(lis3mdl_t *device, uint8_t *hz)
+status_t get_odr(lis3mdl_t *device, double *hz)
 {
     uint8_t reg_value;
 
