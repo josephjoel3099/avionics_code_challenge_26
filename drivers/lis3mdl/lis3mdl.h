@@ -27,7 +27,7 @@ typedef enum
 
 status_t lis3mdl_init(lis3mdl_t *device, uint8_t i2c_addr);
 status_t get_full_scale_config(lis3mdl_t *device, uint8_t *gauss);
-status_t get_odr(lis3mdl_t *device, uint8_t *hz);
+status_t get_odr(lis3mdl_t *device, double *hz);
 status_t set_odr(lis3mdl_t *device, double hz);
 status_t enable_interrupt(lis3mdl_t *device, bool enable);
 status_t read_raw_axis_data(lis3mdl_t *device, lis3mdl_axis_t axis, int16_t *value);
