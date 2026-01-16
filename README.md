@@ -43,6 +43,8 @@ If you have time, answer the following questions:
     - Add priorities to tasks eg. setting ODR will have higher priority that reading value as the rate will change after.
 
 - How might the I2C API be improved
-    - Modify bus address with Read/Write bit (datasheet Section 5.1.1 Table 10).
+    - Start and stop APis
+    - Acknoledgement handling
+    
 
 
