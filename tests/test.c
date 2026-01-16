@@ -7,9 +7,8 @@ int main(void)
     lis3mdl_init(&sensor, 0x1E);
 
     uint8_t fs;
-    uint8_t odr;
     int16_t raw_x;
-    double x;
+    double odr, x;
 
     get_full_scale_config(&sensor, &fs);
     printf("Full scale: ±%d gauss\n", fs);
@@ -17,7 +16,7 @@ int main(void)
     set_odr(&sensor, 20);
 
     get_odr(&sensor, &odr);
-    printf("ODR: %d Hz\n", odr);
+    printf("ODR: %.3f Hz\n", odr);
 
     enable_interrupt(&sensor, true);
 
