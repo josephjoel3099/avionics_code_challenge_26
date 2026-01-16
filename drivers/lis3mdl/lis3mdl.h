@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "i2c.h"
+#include "../i2c/i2c.h"
 
 // Connecting SD0/SA1 pin to GND, SAD[1] = 0
 // SAD = 0b0011100 = 0x1C
