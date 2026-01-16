@@ -5,18 +5,10 @@
 #include <stdbool.h>
 #include "../i2c/i2c.h"
 
-// Connecting SD0/SA1 pin to GND, SAD[1] = 0
-// SAD = 0b0011100 = 0x1C
-// 5.1.1
-#define LIS3MDL_I2C_ADDR 0x1C
-
-#define CTRL_REG1 0x20 // 7.5
-#define CTRL_REG2 0x21 // 7.6
-#define INT_CFG 0x30   // 7.15
-
-#define OUT_X_L 0x28 // 7.11
-#define OUT_Y_L 0x2A // 7.12
-#define OUT_Z_L 0x2C // 7.13
+typedef struct
+{
+    uint8_t i2c_addr;
+} lis3mdl_t;
 
 typedef enum
 {
@@ -25,11 +17,20 @@ typedef enum
     Z_AXIS
 } lis3mdl_axis_t;
 
-status_t get_full_scale_config(uint8_t *gauss);
-status_t get_odr(uint8_t *hz);
-status_t set_odr(double hz);
-status_t enable_interrupt(bool enable);
-status_t read_raw_axis_data(lis3mdl_axis_t axis, int16_t *value);
-status_t read_axis_data(lis3mdl_axis_t axis, double *value);
+#define CTRL_REG1 0x20
+#define CTRL_REG2 0x21
+#define INT_CFG 0x30
+
+#define OUT_X_L 0x28
+#define OUT_Y_L 0x2A
+#define OUT_Z_L 0x2C
+
+status_t lis3mdl_init(lis3mdl_t *device, uint8_t i2c_addr);
+status_t get_full_scale_config(lis3mdl_t *device, uint8_t *gauss);
+status_t get_odr(lis3mdl_t *device, uint8_t *hz);
+status_t set_odr(lis3mdl_t *device, double hz);
+status_t enable_interrupt(lis3mdl_t *device, bool enable);
+status_t read_raw_axis_data(lis3mdl_t *device, lis3mdl_axis_t axis, int16_t *value);
+status_t read_axis_data(lis3mdl_t *device, lis3mdl_axis_t axis, double *value);
 
 #endif
