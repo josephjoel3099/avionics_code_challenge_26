@@ -15,13 +15,8 @@
 #define INT_CFG 0x30   // 7.15
 
 #define OUT_X_L 0x28 // 7.11
-#define OUT_Y_H 0x29
-
 #define OUT_Y_L 0x2A // 7.12
-#define OUT_Z_H 0x2B
-
 #define OUT_Z_L 0x2C // 7.13
-#define OUT_X_H 0x2D
 
 typedef enum
 {
@@ -30,10 +25,10 @@ typedef enum
     Z_AXIS
 } lis3mdl_axis_t;
 
-int get_full_scale_config(uint8_t *gauss);
-int get_odr(uint8_t *hz);
-int set_odr(uint8_t hz);
-int enable_interrupt(bool enable);
-int read_axis_data(lis3mdl_axis_t axis, int16_t *value);
+status_t get_full_scale_config(uint8_t *gauss);
+status_t get_odr(uint8_t *hz);
+status_t set_odr(double hz);
+status_t enable_interrupt(bool enable);
+status_t read_axis_data(lis3mdl_axis_t axis, int16_t *value);
 
 #endif
