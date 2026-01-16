@@ -1,6 +1,17 @@
 #include "lis3mdl.h"
 
-// Get full-scale configuration in gauss
+/**
+ * Get full-scale configuration in gauss
+ *
+ * Reads the full-scale range from CTRL_REG2 and returns the configured
+ * full-scale range in gauss (4, 8, 12, or 16).
+ *
+ * @param gauss  Pointer to uint8_t where the full-scale range will be stored.
+ *               Valid values: 4, 8, 12, or 16 gauss.
+ *
+ * @return STATUS_OK on success, STATUS_ERROR if I2C read fails or invalid
+ *         configuration bits are encountered.
+ */
 status_t get_full_scale_config(uint8_t *gauss)
 {
     uint8_t reg_value;
@@ -39,7 +50,18 @@ status_t get_full_scale_config(uint8_t *gauss)
     return STATUS_OK;
 }
 
-// Get output data rate in Hz
+/**
+ * Get output data rate in Hz
+ *
+ * Reads the ODR (output data rate) configuration from CTRL_REG1 and returns
+ * the configured sampling rate in Hz.
+ *
+ * @param hz  Pointer to uint8_t where the ODR will be stored.
+ *            Valid values: 0.625, 1.25, 2.5, 5, 10, 20, 40, or 80 Hz.
+ *
+ * @return STATUS_OK on success, STATUS_ERROR if I2C read fails or invalid
+ *         ODR bits are encountered.
+ */
 status_t get_odr(uint8_t *hz)
 {
     uint8_t reg_value;
@@ -90,7 +112,19 @@ status_t get_odr(uint8_t *hz)
     return STATUS_OK;
 }
 
-// Set output data rate in Hz
+/**
+ * Set output data rate in Hz
+ *
+ * Configures the ODR (output data rate) by writing to CTRL_REG1.
+ * The selected rate determines how frequently the sensor samples magnetic
+ * field data.
+ *
+ * @param hz  Desired output data rate in Hz.
+ *            Valid values: 0.625, 1.25, 2.5, 5, 10, 20, 40, or 80 Hz.
+ *
+ * @return STATUS_OK on success, STATUS_ERROR if Hz value is unsupported or
+ *         if I2C read/write operations fail.
+ */
 status_t set_odr(double hz)
 {
     uint8_t reg_value;
@@ -136,7 +170,16 @@ status_t set_odr(double hz)
         &reg_value);
 }
 
-// Toggle interrupt configuration
+/**
+ * Toggle interrupt configuration
+ *
+ * Enables or disables the interrupt output by setting/clearing the interrupt
+ * enable bit in the INT_CFG register.
+ *
+ * @param enable  True to enable interrupts, false to disable.
+ *
+ * @return STATUS_OK on success, STATUS_ERROR if I2C read/write operations fail.
+ */
 status_t enable_interrupt(bool enable)
 {
     uint8_t reg_value;
@@ -168,7 +211,19 @@ status_t enable_interrupt(bool enable)
         &reg_value);
 }
 
-// Read axis data
+/**
+ * Read raw axis data
+ *
+ * Reads the raw 16-bit magnetic field value from the specified axis register.
+ * The raw value is in LSB (Least Significant Bits) and represents the
+ * unscaled sensor output.
+ *
+ * @param axis   The axis to read (X_AXIS, Y_AXIS, or Z_AXIS).
+ * @param value  Pointer to int16_t where the raw value will be stored.
+ *
+ * @return STATUS_OK on success, STATUS_ERROR if axis is invalid or I2C
+ *         read operation fails.
+ */
 status_t read_raw_axis_data(lis3mdl_axis_t axis, int16_t *value)
 {
     uint8_t low_reg;
@@ -201,10 +256,32 @@ status_t read_raw_axis_data(lis3mdl_axis_t axis, int16_t *value)
         return status;
     }
 
-    *value = (int16_t)(buffer[1] << 8 | buffer[0]);
+    *value = (int16_t)(buffer[1] << 8 | buffer[0]); // raw value
     return STATUS_OK;
 }
 
+/**
+ * Read axis data in microtesla (uT)
+ *
+ * Reads the raw magnetic field value from the specified axis and converts it
+ * to microtesla (uT) using the current full-scale range and sensitivity.
+ * The sensitivity varies based on the configured full-scale range:
+ *
+ *  +/- 4 gauss  -> 6842 LSB/gauss
+ *
+ *  +/- 8 gauss  -> 3421 LSB/gauss
+ *
+ *  +/-12 gauss  -> 2281 LSB/gauss
+ *
+ *  +/-16 gauss  -> 1711 LSB/gauss
+ *
+ *
+ * @param axis   The axis to read (X_AXIS, Y_AXIS, or Z_AXIS).
+ * @param value  Pointer to double where the converted value in uT will be stored.
+ *
+ * @return STATUS_OK on success, STATUS_ERROR if axis is invalid, I2C read
+ *         fails, or full-scale configuration is invalid.
+ */
 status_t read_axis_data(lis3mdl_axis_t axis, double *value)
 {
     double sensitivity;
@@ -213,13 +290,6 @@ status_t read_axis_data(lis3mdl_axis_t axis, double *value)
 
     read_raw_axis_data(axis, &raw_value);
     get_full_scale_config(&fs);
-
-    /*
-    ± 4 gauss → 6842 LSB/gauss
-    ± 8 gauss → 3421 LSB/gauss
-    ±12 gauss → 2281 LSB/gauss
-    ±16 gauss → 1711 LSB/gauss
-    */
 
     switch (fs)
     {
