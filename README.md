@@ -43,7 +43,7 @@ If you have time, answer the following questions:
     - Add priorities to tasks eg. setting ODR will have higher priority that reading value as the rate will change after.
 
 - How might the I2C API be improved
-    - Start and stop APis
+    - Start and stop i2c transmission APis
     - Acknoledgement handling
     
 
