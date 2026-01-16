@@ -1,5 +1,11 @@
 #include "lis3mdl.h"
 
+status_t lis3mdl_init(lis3mdl_t *device, uint8_t i2c_addr)
+{
+    device->i2c_addr = i2c_addr;
+    return STATUS_OK;
+}
+
 /**
  * Get full-scale configuration in gauss
  *
@@ -12,12 +18,12 @@
  * @return STATUS_OK on success, STATUS_ERROR if I2C read fails or invalid
  *         configuration bits are encountered.
  */
-status_t get_full_scale_config(uint8_t *gauss)
+status_t get_full_scale_config(lis3mdl_t *device, uint8_t *gauss)
 {
     uint8_t reg_value;
 
     status_t status = i2c_read(
-        LIS3MDL_I2C_ADDR,
+        device->i2c_addr,
         CTRL_REG2,
         1,
         &reg_value);
@@ -54,20 +60,22 @@ status_t get_full_scale_config(uint8_t *gauss)
  * Get output data rate in Hz
  *
  * Reads the ODR (output data rate) configuration from CTRL_REG1 and returns
- * the configured sampling rate in Hz.
+ * the configured sampling rate as an enumerated index.
  *
- * @param hz  Pointer to uint8_t where the ODR will be stored.
- *            Valid values: 0.625, 1.25, 2.5, 5, 10, 20, 40, or 80 Hz.
+ * @param device  Pointer to the lis3mdl device structure.
+ * @param hz      Pointer to uint8_t where the ODR index will be stored.
+ *                The index corresponds to: 0=0.625Hz, 1=1.25Hz, 2=2.5Hz, 3=5Hz,
+ *                4=10Hz, 5=20Hz, 6=40Hz, 7=80Hz.
  *
  * @return STATUS_OK on success, STATUS_ERROR if I2C read fails or invalid
  *         ODR bits are encountered.
  */
-status_t get_odr(uint8_t *hz)
+status_t get_odr(lis3mdl_t *device, uint8_t *hz)
 {
     uint8_t reg_value;
 
     status_t status = i2c_read(
-        LIS3MDL_I2C_ADDR,
+        device->i2c_addr,
         CTRL_REG1,
         1,
         &reg_value);
@@ -119,18 +127,19 @@ status_t get_odr(uint8_t *hz)
  * The selected rate determines how frequently the sensor samples magnetic
  * field data.
  *
- * @param hz  Desired output data rate in Hz.
- *            Valid values: 0.625, 1.25, 2.5, 5, 10, 20, 40, or 80 Hz.
+ * @param device  Pointer to the lis3mdl device structure.
+ * @param hz      Desired output data rate in Hz as a double.
+ *                Valid values: 0.625, 1.25, 2.5, 5.0, 10.0, 20.0, 40.0, or 80.0 Hz.
  *
  * @return STATUS_OK on success, STATUS_ERROR if Hz value is unsupported or
  *         if I2C read/write operations fail.
  */
-status_t set_odr(double hz)
+status_t set_odr(lis3mdl_t *device, double hz)
 {
     uint8_t reg_value;
 
     status_t status = i2c_read(
-        LIS3MDL_I2C_ADDR,
+        device->i2c_addr,
         CTRL_REG1,
         1,
         &reg_value);
@@ -164,7 +173,7 @@ status_t set_odr(double hz)
     reg_value = (reg_value & ~(0x07 << 2)) | (odr_bits << 2);
 
     return i2c_write(
-        LIS3MDL_I2C_ADDR,
+        device->i2c_addr,
         CTRL_REG1,
         1,
         &reg_value);
@@ -176,16 +185,17 @@ status_t set_odr(double hz)
  * Enables or disables the interrupt output by setting/clearing the interrupt
  * enable bit in the INT_CFG register.
  *
+ * @param device  Pointer to the lis3mdl device structure.
  * @param enable  True to enable interrupts, false to disable.
  *
  * @return STATUS_OK on success, STATUS_ERROR if I2C read/write operations fail.
  */
-status_t enable_interrupt(bool enable)
+status_t enable_interrupt(lis3mdl_t *device, bool enable)
 {
     uint8_t reg_value;
 
     status_t status = i2c_read(
-        LIS3MDL_I2C_ADDR,
+        device->i2c_addr,
         INT_CFG,
         1,
         &reg_value);
@@ -205,7 +215,7 @@ status_t enable_interrupt(bool enable)
     }
 
     return i2c_write(
-        LIS3MDL_I2C_ADDR,
+        device->i2c_addr,
         INT_CFG,
         1,
         &reg_value);
@@ -218,13 +228,14 @@ status_t enable_interrupt(bool enable)
  * The raw value is in LSB (Least Significant Bits) and represents the
  * unscaled sensor output.
  *
- * @param axis   The axis to read (X_AXIS, Y_AXIS, or Z_AXIS).
- * @param value  Pointer to int16_t where the raw value will be stored.
+ * @param device  Pointer to the lis3mdl device structure.
+ * @param axis    The axis to read (X_AXIS, Y_AXIS, or Z_AXIS).
+ * @param value   Pointer to int16_t where the raw value will be stored.
  *
  * @return STATUS_OK on success, STATUS_ERROR if axis is invalid or I2C
  *         read operation fails.
  */
-status_t read_raw_axis_data(lis3mdl_axis_t axis, int16_t *value)
+status_t read_raw_axis_data(lis3mdl_t *device, lis3mdl_axis_t axis, int16_t *value)
 {
     uint8_t low_reg;
 
@@ -246,7 +257,7 @@ status_t read_raw_axis_data(lis3mdl_axis_t axis, int16_t *value)
     uint8_t buffer[2];
 
     status_t status = i2c_read(
-        LIS3MDL_I2C_ADDR,
+        device->i2c_addr,
         low_reg,
         2,
         buffer);
@@ -276,20 +287,31 @@ status_t read_raw_axis_data(lis3mdl_axis_t axis, int16_t *value)
  *  +/-16 gauss  -> 1711 LSB/gauss
  *
  *
- * @param axis   The axis to read (X_AXIS, Y_AXIS, or Z_AXIS).
- * @param value  Pointer to double where the converted value in uT will be stored.
+ * @param device  Pointer to the lis3mdl device structure.
+ * @param axis    The axis to read (X_AXIS, Y_AXIS, or Z_AXIS).
+ * @param value   Pointer to double where the converted value in uT will be stored.
  *
  * @return STATUS_OK on success, STATUS_ERROR if axis is invalid, I2C read
  *         fails, or full-scale configuration is invalid.
  */
-status_t read_axis_data(lis3mdl_axis_t axis, double *value)
+status_t read_axis_data(lis3mdl_t *device, lis3mdl_axis_t axis, double *value)
 {
     double sensitivity;
     uint8_t fs;
     int16_t raw_value;
+    status_t status;
 
-    read_raw_axis_data(axis, &raw_value);
-    get_full_scale_config(&fs);
+    status = read_raw_axis_data(device, axis, &raw_value);
+    if (status != STATUS_OK)
+    {
+        return status;
+    }
+
+    status = get_full_scale_config(device, &fs);
+    if (status != STATUS_OK)
+    {
+        return status;
+    }
 
     switch (fs)
     {
