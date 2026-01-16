@@ -27,8 +27,22 @@ You shouldn't need to spend more than a couple of hours on the task.
 
 This is not a closed book assessment.
 
+### Run test
+In main dir:
+```
+gcc tests/test.c drivers/i2c/i2c.c drivers/lis3mdl/lis3mdl.c -Idrivers/i2c -Idrivers/lis3mdl -o lis3mdl_test
+```
+```
+./lis3mdl_test
+```
+
 ## Extra Thoughts
 If you have time, answer the following questions:
-- What changes you would make to this interfaces for use in an RTOS
-environment?
+- What changes you would make to this interfaces for use in an RTOS environment?
+    - I would add mutex to critical areas i.e., when ODR is set and when interrupt is toggled so other APIs cannot access these registers while it is being modified.
+    - Add priorities to tasks eg. setting ODR will have higher priority that reading value as the rate will change after.
+
 - How might the I2C API be improved
+    - Modify bus address with Read/Write bit (datasheet Section 5.1.1 Table 10).
+
+
