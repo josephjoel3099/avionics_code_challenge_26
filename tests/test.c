@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "lis3mdl.h"
+#include "../../drivers/lis3mdl/lis3mdl.h"
 
 int main(void)
 {
@@ -12,6 +12,7 @@ int main(void)
     printf("Full scale: ±%d gauss\n", fs);
 
     set_odr(20);
+
     get_odr(&odr);
     printf("ODR: %d Hz\n", odr);
 
@@ -22,5 +23,6 @@ int main(void)
 
     read_axis_data(X_AXIS, &x);
     printf("X axis (gauss): %f uT\n", x);
+
     return 0;
 }
