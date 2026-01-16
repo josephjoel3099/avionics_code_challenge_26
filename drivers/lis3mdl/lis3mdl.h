@@ -29,6 +29,7 @@ status_t get_full_scale_config(uint8_t *gauss);
 status_t get_odr(uint8_t *hz);
 status_t set_odr(double hz);
 status_t enable_interrupt(bool enable);
-status_t read_axis_data(lis3mdl_axis_t axis, int16_t *value);
+status_t read_raw_axis_data(lis3mdl_axis_t axis, int16_t *value);
+status_t read_axis_data(lis3mdl_axis_t axis, double *value);
 
 #endif

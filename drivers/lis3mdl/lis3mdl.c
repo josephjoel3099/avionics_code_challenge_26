@@ -169,7 +169,7 @@ status_t enable_interrupt(bool enable)
 }
 
 // Read axis data
-status_t read_axis_data(lis3mdl_axis_t axis, int16_t *value)
+status_t read_raw_axis_data(lis3mdl_axis_t axis, int16_t *value)
 {
     uint8_t low_reg;
 
@@ -202,5 +202,43 @@ status_t read_axis_data(lis3mdl_axis_t axis, int16_t *value)
     }
 
     *value = (int16_t)(buffer[1] << 8 | buffer[0]);
+    return STATUS_OK;
+}
+
+status_t read_axis_data(lis3mdl_axis_t axis, double *value)
+{
+    double sensitivity;
+    uint8_t fs;
+    int16_t raw_value;
+
+    read_raw_axis_data(axis, &raw_value);
+    get_full_scale_config(&fs);
+
+    /*
+    ± 4 gauss → 6842 LSB/gauss
+    ± 8 gauss → 3421 LSB/gauss
+    ±12 gauss → 2281 LSB/gauss
+    ±16 gauss → 1711 LSB/gauss
+    */
+
+    switch (fs)
+    {
+    case 4:
+        sensitivity = 6842;
+        break;
+    case 8:
+        sensitivity = 3421;
+        break;
+    case 12:
+        sensitivity = 2281;
+        break;
+    case 16:
+        sensitivity = 1711;
+        break;
+    default:
+        return STATUS_ERROR;
+    }
+
+    *value = raw_value / sensitivity * 100; // uT
     return STATUS_OK;
 }
