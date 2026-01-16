@@ -5,10 +5,10 @@
 #include <stdbool.h>
 #include "i2c.h"
 
-// Connecting SD0/SA1 pin to Vdd, SAD[1] = 1
-// SAD = 0b0011110 = 0x1E
+// Connecting SD0/SA1 pin to GND, SAD[1] = 0
+// SAD = 0b0011100 = 0x1C
 // 5.1.1
-#define LIS3MDL_I2C_ADDR 0x1E
+#define LIS3MDL_I2C_ADDR 0x1C
 
 #define CTRL_REG1 0x20 // 7.5
 #define CTRL_REG2 0x21 // 7.6
