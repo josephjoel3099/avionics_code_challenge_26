@@ -30,7 +30,7 @@ This is not a closed book assessment.
 ### Run test
 In main dir:
 ```
-gcc tests/test.c drivers/i2c/i2c.c drivers/lis3mdl/lis3mdl.c -Idrivers/i2c -Idrivers/lis3mdl -o lis3mdl_test
+gcc tests/test.c drivers/i2c/i2c.c drivers/lis3mdl/lis3mdl.c -Idrivers/i2c -Idrivers/lis3mdl -o lis3mdl_test_build
 ```
 ```
 ./lis3mdl_test
