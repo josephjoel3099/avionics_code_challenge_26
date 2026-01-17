@@ -266,7 +266,7 @@ status_t read_raw_axis_data(lis3mdl_t *device, lis3mdl_axis_t axis, int16_t *val
         return status;
     }
 
-    *value = (int16_t)(buffer[1] << 8 | buffer[0]); // raw value
+    *value = (int16_t)(buffer[0] << 8 | buffer[1]); // raw value
     return STATUS_OK;
 }
 
@@ -330,6 +330,6 @@ status_t read_axis_data(lis3mdl_t *device, lis3mdl_axis_t axis, double *value)
         return STATUS_ERROR;
     }
 
-    *value = raw_value / sensitivity * 100; // uT
+    *value = ((double)raw_value / sensitivity) * 100.0; // uT
     return STATUS_OK;
 }
