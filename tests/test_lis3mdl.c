@@ -252,8 +252,8 @@ void test_read_raw_axis_data()
         const char *name;
     } test_cases[] = {
         {X_AXIS, OUT_X_L, 0x1234, "X"},
-        {Y_AXIS, OUT_Y_L, 0x7856, "Y"},
-        {Z_AXIS, OUT_Z_L, 0x7ABC, "Z"}};
+        {Y_AXIS, OUT_Y_L, 0x5678, "Y"},
+        {Z_AXIS, OUT_Z_L, 0x9ABC, "Z"}};
 
     for (int i = 0; i < 3; i++)
     {
@@ -261,8 +261,8 @@ void test_read_raw_axis_data()
         int16_t value = 0;
 
         lis3mdl_init(&device, 0x1C);
-        mock_buffer[test_cases[i].reg] = test_cases[i].expected & 0xFF;
-        mock_buffer[test_cases[i].reg + 1] = (test_cases[i].expected >> 8) & 0xFF;
+        mock_buffer[test_cases[i].reg] = (test_cases[i].expected >> 8) & 0xFF;
+        mock_buffer[test_cases[i].reg + 1] = test_cases[i].expected & 0xFF;
         mock_status = STATUS_OK;
 
         status_t result = read_raw_axis_data(&device, test_cases[i].axis, &value);
@@ -305,10 +305,10 @@ void test_read_axis_data()
         double min_expected;
         double max_expected;
     } scale_cases[] = {
-        {4, 0x00, 60, 61},    // 4 gauss
-        {8, 0x20, 121, 122},  // 8 gauss
-        {12, 0x40, 182, 183}, // 12 gauss
-        {16, 0x60, 243, 244}  // 16 gauss
+        {4, 0x00, 68, 69},    // 4 gauss
+        {8, 0x20, 136, 137},  // 8 gauss
+        {12, 0x40, 204, 205}, // 12 gauss
+        {16, 0x60, 272, 273}  // 16 gauss
     };
 
     for (int i = 0; i < 4; i++)
@@ -317,8 +317,8 @@ void test_read_axis_data()
         double value = 0;
 
         lis3mdl_init(&device, 0x1C);
-        mock_buffer[OUT_X_L] = 0x40;
-        mock_buffer[OUT_X_L + 1] = 0x10;
+        mock_buffer[OUT_X_L] = 0x12;
+        mock_buffer[OUT_X_L + 1] = 0x34;
         mock_buffer[CTRL_REG2] = scale_cases[i].reg_bits;
         mock_status = STATUS_OK;
 
